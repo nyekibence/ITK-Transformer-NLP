@@ -44,3 +44,14 @@ A gyakorlatok a kidolgozott példákhoz hasonlóak, kiegészítendő kódot tart
 * Cross-lingual few-shot és zero-shot (E)
 * Cross-lingual few-shot osztályozás (P)
 * Gyakorlat: Multilingual knowledge distillation
+
+## Telepítés, használat
+Az előadásokon bemutatott notebook-ok a `matrials` könyvtárban érhetők el, a gyakorlatok pedig
+az `itk_transformer_nlp`-ben. Az utóbbi Python csomagba van szervezve a használat és a tesztelés megkönnyítése végett.
+
+Telepítsük a [poetry](https://python-poetry.org/docs/#installation) eszközt, hozzunk létre új virtuális környezetet
+a Python 3.9-es verziójával, majd futtassuk a következő parancsot:
+
+```bash
+poetry install && python3 setup.py develop
+```

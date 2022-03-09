@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "itk_transformer_nlp"
+version = "0.1.0"
+description = "A package for learning NLP with Transformers"
+readme = "README.md"
+repository = "https://github.com/nyekibence/ITK-Transformer-NLP"
+authors = ["nyekibence <nyeki.bence96@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+torch = "^1.10.2"
+transformers = "^4.17.0"
+datasets = "^1.18.4"
+
+[tool.poetry.dev-dependencies]
+black = "^22.1.0"
+poetry2setup = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
