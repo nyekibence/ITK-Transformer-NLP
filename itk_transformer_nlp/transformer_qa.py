@@ -15,9 +15,10 @@ The workflow includes the following steps:
 * Output the results
 """
 
-import re
+from argparse import ArgumentParser, Namespace
 from typing import (
-    Tuple, Dict, Any, Sequence, Generator, Optional)
+    Tuple, Dict, Any, Sequence, Generator, Optional, Union)
+import re
 
 import torch
 from torch.utils.data import DataLoader
@@ -28,6 +29,45 @@ from transformers import (
     PreTrainedTokenizer,
     BatchEncoding
 )
+
+
+def load_jsonl_dataset(dataset_path: str, cache_dir: Optional[str] = None) -> Dataset:
+    """Load a dataset from a jsonlines file
+
+    Args:
+        dataset_path: Path to the jsonlines dataset file
+        cache_dir: Optional. Cache directory to read/write data.
+            This can also be set by setting the `HF_DATASETS_CACHE` environment variable.
+            By default, the `~/.cache/huggingface/datasets` will be used
+    """
+    return load_dataset(
+        "json", data_files=[dataset_path], split="train", cache_dir=cache_dir)
+
+
+def check_positive_int(input_int: Union[str, int]) -> int:
+    """Check if `input_int` is a positive integer.
+    If it is, return it as an `int`. Raise `TypeError` otherwise
+    """
+    input_int = int(input_int)
+    if input_int <= 0:
+        raise ValueError(f"A positive integer is expected, got {input_int}")
+    return input_int
+
+
+def get_qa_args() -> Namespace:
+    """Get command line arguments"""
+    parser = ArgumentParser(description="Arguments for QA inference")
+    parser.add_argument("dataset", type=load_dataset,
+                        help="Path to the jsonlines dataset file")
+    parser.add_argument("text_col_names", nargs="+", default=["question", "context"],
+                        help="Names of the dataset columns that contain the text data. "
+                             "Defaults to `['question', 'context']`")
+    parser.add_argument("--max-seq-length", dest="max_seq_length", type=check_positive_int, default=256,
+                        help="Maximal sequence length in tokens. If a sequence is longer, "
+                             "it will be truncated. Defaults to 256")
+    parser.add_argument("--batch-size", dest="batch_size", type=check_positive_int, default=8,
+                        help="Batch size used to process data. Defaults to 8")
+    return parser.parse_args()
 
 
 def tokenize_dataset(
@@ -42,7 +82,7 @@ def tokenize_dataset(
 
     Args:
         dataset: The input data as a `datasets.Dataset` object
-        text_col_names: The dataset columns (which can also be called keys) that contains the text data.
+        text_col_names: The dataset columns (which can also be called keys) that contain the text data.
             None of them should be `"input_ids"`, `"attention_mask"` or `"token_type_ids"` as those are
             the columns returned by the tokenizer. Text data will be fed to the tokenizer in the order
             the elements are specified in `text_col_names`
@@ -174,18 +214,18 @@ def get_predictions(
 
 def main() -> None:
     """Main function"""
-    dataset = load_dataset("squad_v2", split="validation")
+    args = get_qa_args()
     tokenizer = BartTokenizer.from_pretrained("a-ware/bart-squadv2")
     data_loader = tokenize_dataset(
-        dataset=dataset,
-        text_col_names=("question", "context"),
+        dataset=args.dataset,
+        text_col_names=args.text_col_names,
         tokenizer=tokenizer,
-        batch_size=4,
-        max_seq_length=128
+        batch_size=args.batch_size,
+        max_seq_length=args.max_seq_length
     )
     model = BartForQuestionAnswering.from_pretrained("a-ware/bart-squadv2")
-    for qca in get_predictions(model, data_loader, tokenizer):
-        print("\t".join(qca))
+    for triplet in get_predictions(model, data_loader, tokenizer):
+        print("\t".join(triplet))
 
 
 if __name__ == "__main__":
