@@ -12,3 +12,8 @@ qa_on_squad: $(SQUAD_SAMPLE)
 	python3 $(TEST_DIR)/test_transformer_qa.py; \
 	if [ $$? -eq 0 ]; then python3 $(SOURCE_DIR)/transformer_qa.py $(SQUAD_SAMPLE); fi
 .PHONY: qa_on_squad
+
+qa_solutions:
+	@if [ -d .git ]; then git restore --source 661b3746 $(SOURCE_DIR)/transformer_qa.py; echo "OK"; \
+	else echo "ERROR: You need version control to perform this action."; fi
+.PHONY: qa_solutions
