@@ -40,8 +40,7 @@ def load_jsonl_dataset(dataset_path: str, cache_dir: Optional[str] = None) -> Da
             This can also be set by setting the `HF_DATASETS_CACHE` environment variable.
             By default, the `~/.cache/huggingface/datasets` will be used
     """
-    return load_dataset(
-        "json", data_files=[dataset_path], split="train", cache_dir=cache_dir)
+    return load_dataset("json", data_files=dataset_path, split="train", cache_dir=cache_dir)
 
 
 def check_positive_int(input_int: Union[str, int]) -> int:
@@ -57,16 +56,17 @@ def check_positive_int(input_int: Union[str, int]) -> int:
 def get_qa_args() -> Namespace:
     """Get command line arguments"""
     parser = ArgumentParser(description="Arguments for QA inference")
-    parser.add_argument("dataset", type=load_dataset,
+    parser.add_argument("dataset", type=load_jsonl_dataset,
                         help="Path to the jsonlines dataset file")
-    parser.add_argument("text_col_names", nargs="+", default=["question", "context"],
+    parser.add_argument("--text-col-names", dest="text_col_names", nargs="+",
+                        default=["question", "context"],
                         help="Names of the dataset columns that contain the text data. "
                              "Defaults to `['question', 'context']`")
     parser.add_argument("--max-seq-length", dest="max_seq_length", type=check_positive_int, default=256,
                         help="Maximal sequence length in tokens. If a sequence is longer, "
                              "it will be truncated. Defaults to 256")
-    parser.add_argument("--batch-size", dest="batch_size", type=check_positive_int, default=8,
-                        help="Batch size used to process data. Defaults to 8")
+    parser.add_argument("--batch-size", dest="batch_size", type=check_positive_int, default=2,
+                        help="Batch size used to process data. Defaults to 2")
     return parser.parse_args()
 
 
@@ -135,10 +135,10 @@ def extract_answer(
     """
     batch_size, seq_length = input_ids.shape
     answer_start = torch.argmax(start_scores, dim=-1, keepdim=True)
-    answer_end = torch.argmax(end_scores, dim=-1, keepdim=True)
+    answer_end = torch.argmax(end_scores, dim=-1, keepdim=True) + 1
     mask = torch.arange(seq_length).repeat(batch_size, 1)
     mask = torch.where(
-        torch.logical_and(answer_start <= mask, mask <= answer_end),
+        torch.logical_and(answer_start < mask, mask <= answer_end),
         True, False)
     return torch.where(mask, input_ids, pad_token_id)
 
@@ -209,6 +209,8 @@ def get_predictions(
         decoded_inputs = clean_decoded_batch(decode_bart_input(input_ids, tokenizer), cleaning_pattern)
         decoded_answers = clean_decoded_batch(decode_bart_input(answers, tokenizer), cleaning_pattern)
         for decoded_input, decoded_answer in zip(decoded_inputs, decoded_answers):
+            if len(decoded_answer) != 1:
+                decoded_answer = ("NA",)
             yield decoded_input + decoded_answer
 
 
@@ -226,7 +228,7 @@ def main() -> None:
     )
     model = BartForQuestionAnswering.from_pretrained(model_name)
     for triplet in get_predictions(model, data_loader, tokenizer):
-        print("\t".join(triplet))
+        print("\t".join(triplet), end="\n\n")
 
 
 if __name__ == "__main__":
