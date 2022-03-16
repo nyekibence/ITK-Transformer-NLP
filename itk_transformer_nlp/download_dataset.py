@@ -3,6 +3,7 @@ to a file in jsonlines format
 """
 
 from argparse import ArgumentParser, Namespace, FileType
+from math import ceil
 
 from datasets import load_dataset
 
@@ -32,7 +33,8 @@ def write_dataset() -> None:
     if args.shuffle:
         dataset = dataset.shuffle(42)
     if args.sample_size is not None:
-        dataset = dataset[:args.sample_size]
+        num_shards = ceil(len(dataset) / args.sample_size)
+        dataset = dataset.shard(num_shards, 0, contiguous=True)
     dataset.to_json(args.target_path, force_ascii=False)
 
 

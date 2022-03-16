@@ -215,7 +215,8 @@ def get_predictions(
 def main() -> None:
     """Main function"""
     args = get_qa_args()
-    tokenizer = BartTokenizer.from_pretrained("a-ware/bart-squadv2")
+    model_name = "a-ware/bart-squadv2"
+    tokenizer = BartTokenizer.from_pretrained(model_name)
     data_loader = tokenize_dataset(
         dataset=args.dataset,
         text_col_names=args.text_col_names,
@@ -223,7 +224,7 @@ def main() -> None:
         batch_size=args.batch_size,
         max_seq_length=args.max_seq_length
     )
-    model = BartForQuestionAnswering.from_pretrained("a-ware/bart-squadv2")
+    model = BartForQuestionAnswering.from_pretrained(model_name)
     for triplet in get_predictions(model, data_loader, tokenizer):
         print("\t".join(triplet))
 
