@@ -46,6 +46,12 @@ A gyakorlatok a kidolgozott példákhoz hasonlóak, kiegészítendő kódot tart
 * Gyakorlat: Multilingual knowledge distillation
 
 ## Telepítés, használat
+Klónozzuk a fájlrendszert:
+
+```bash
+git clone https://github.com/nyekibence/ITK-Transformer-NLP.git
+```
+
 Az előadásokon bemutatott notebook-ok a `matrials` könyvtárban érhetők el, a gyakorlatok pedig
 az `itk_transformer_nlp`-ben. Az utóbbi Python csomagba van szervezve a használat és a tesztelés megkönnyítése végett.
 
@@ -55,3 +61,19 @@ a Python 3.9-es verziójával, majd futtassuk a következő parancsot:
 ```bash
 poetry install && python3 setup.py develop
 ```
+
+## Gyakorlatok
+A gyakorlatok kiegészítendő kódok. A függvénytestekben a `None` objektumokat kell saját kódra cserélni. Részletesebb instrukciók a kódfájlokban.
+
+A futtatáshoz és teszeteléshez elérhetők `make` parancsok. 
+
+### Question answering
+Question answering a [bart-squadv2](https://huggingface.co/a-ware/bart-squadv2) segítségével. Ez egy nagyméretű modell,
+a gyakorlatban való használata előtt ajánlott, hogy legalább 8 GB RAM legyen elérhető. 
+
+Szkript: `itk_transformer_nlp/transformer_qa.py`
+
+Make parancsok:
+* `data/squad_example.jsonl`: Letölt egy rövid mintát a [SQuAD](https://rajpurkar.github.io/SQuAD-explorer/) datasetből `jsonlines` formátumban.
+* `qa_on_squad`: Futtatja a teszteket és kiírja a letöltött SQuAD adatpontokon kiszámolt predikciókat. Ezzel lehet ellenőrizni, helyesek-e a gyakorlat megoldásai.
+* `qa_solutions:` Beírja a megoldásokat a `itk_transformer_nlp/transformer_qa.py` fájlba.

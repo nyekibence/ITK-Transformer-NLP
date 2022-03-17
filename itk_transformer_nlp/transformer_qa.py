@@ -15,8 +15,8 @@ The workflow includes the following steps:
 * Output the results
 
 Task:
-    Replace instances of `None` with your own code
-    unless instructed otherwise in the comments
+    Replace instances of `None` in function or method bodies
+    with your own code unless instructed otherwise in the comments
 """
 
 from argparse import ArgumentParser, Namespace
@@ -106,6 +106,7 @@ def tokenize_dataset(
     tokenizer_cols = tokenizer("Dummy text").keys()
     if set(text_col_names) & tokenizer_cols:
         raise ValueError(f"Invalid text column names: {text_col_names}")
+    #  Do not edit `None` in the next line
     cols_to_remove = list(dataset.features.keys()) if remove_old_cols else None
     tokenizer.model_max_length = max_seq_length
 
