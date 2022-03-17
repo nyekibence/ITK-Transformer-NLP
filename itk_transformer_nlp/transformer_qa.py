@@ -13,6 +13,10 @@ The workflow includes the following steps:
 * Load the model
 * Call the model on data batches
 * Output the results
+
+Task:
+    Replace instances of `None` with your own code
+    unless instructed otherwise in the comments
 """
 
 from argparse import ArgumentParser, Namespace
@@ -107,10 +111,16 @@ def tokenize_dataset(
 
     def tok_func(example: Dict[str, Any]) -> BatchEncoding:
         text_cols = [example[text_col_name] for text_col_name in text_col_names]
-        return tokenizer(*text_cols, padding=True, truncation=True)
+        #  Call the tokenizer on the text data, turn on padding and truncation.
+        #  Feel free to browse the documentation:
+        #  https://huggingface.co/docs/transformers/v4.17.0/en/main_classes/tokenizer
+        return None
 
-    dataset = dataset.map(
-        tok_func, batched=True, batch_size=batch_size, remove_columns=cols_to_remove)
+    #  Tokenize the whole dataset using the `map` method. Apply batched tokenization and set the batch_size
+    #  Also use the `cols_to_remove` variable to remove unused dataset columns
+    #  Please refer to the documentation at
+    #  https://huggingface.co/docs/datasets/v2.0.0/en/package_reference/main_classes#datasets.Dataset.map
+    dataset = None
     dataset.set_format(type="torch", columns=list(tokenizer_cols))
     return DataLoader(dataset, batch_size=batch_size)
 
@@ -141,11 +151,10 @@ def extract_answer(
     #  predicts the token before the last answer token
     answer_end = torch.argmax(end_scores, dim=-1, keepdim=True) + 1
     mask = torch.arange(seq_length).repeat(batch_size, 1)
-    # noinspection PyTypeChecker
-    #  The IDE may get the type of `answer_end` wrong (it is an integer tensor).
-    mask = torch.where(
-        torch.logical_and(answer_start < mask, mask <= answer_end),
-        True, False)
+    #  Make `mask` a Boolean tensor without changing its shape. In every row, the values greater than `answer_start`
+    #  AND less or equal to `answer_end` should be set to `True`. Every other element should be `False`.
+    #  Hint: Use `torch.where`
+    mask = None
     return torch.where(mask, input_ids, pad_token_id)
 
 
@@ -227,7 +236,8 @@ def main() -> None:
     """Main function"""
     args = get_qa_args()
     model_name = "a-ware/bart-squadv2"
-    tokenizer = BartTokenizer.from_pretrained(model_name)
+    #  Load the `BartTokenizer` whose identifier is `model_name`
+    tokenizer = None
     data_loader = tokenize_dataset(
         dataset=args.dataset,
         text_col_names=args.text_col_names,
@@ -235,7 +245,8 @@ def main() -> None:
         batch_size=args.batch_size,
         max_seq_length=args.max_seq_length
     )
-    model = BartForQuestionAnswering.from_pretrained(model_name)
+    #  Load the `BartForQuestionAnswering` model whose identifier is `model_name`
+    model = None
     for triplet in get_predictions(model, data_loader, tokenizer):
         print("\t".join(triplet), end="\n\n")
 

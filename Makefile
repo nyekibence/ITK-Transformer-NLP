@@ -15,6 +15,6 @@ qa_on_squad: $(SQUAD_SAMPLE)
 .PHONY: qa_on_squad
 
 qa_solutions:
-	@if [ -d .git ]; then git restore --source 661b3746 $(SOURCE_DIR)/transformer_qa.py; echo "OK"; \
+	@if [ -d .git ]; then git restore --source b69ae811 $(SOURCE_DIR)/transformer_qa.py; echo "OK"; \
 	else echo "ERROR: You need version control to perform this action."; fi
 .PHONY: qa_solutions
