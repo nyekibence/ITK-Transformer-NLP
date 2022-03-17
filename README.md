@@ -77,3 +77,4 @@ Make parancsok:
 * `data/squad_example.jsonl`: Letölt egy rövid mintát a [SQuAD](https://rajpurkar.github.io/SQuAD-explorer/) datasetből `jsonlines` formátumban.
 * `qa_on_squad`: Futtatja a teszteket és kiírja a letöltött SQuAD adatpontokon kiszámolt predikciókat. Ezzel lehet ellenőrizni, helyesek-e a gyakorlat megoldásai.
 * `qa_solutions:` Beírja a megoldásokat a `itk_transformer_nlp/transformer_qa.py` fájlba.
+* `qa_reload_lab`: Visszaállítja az eredeti kiegészítendő kódot az `itk_transformer_nlp/transformer_qa.py` fájlban.

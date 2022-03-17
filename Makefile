@@ -18,3 +18,8 @@ qa_solutions:
 	@if [ -d .git ]; then git restore --source b69ae811 $(SOURCE_DIR)/transformer_qa.py; echo "OK"; \
 	else echo "ERROR: You need version control to perform this action."; fi
 .PHONY: qa_solutions
+
+qa_reload_lab:
+	@if [ -d .git ]; then git restore --source 43cf14c3 $(SOURCE_DIR)/transformer_qa.py; echo "OK"; \
+	else echo "ERROR: You need version control to perform this action."; fi
+.PHONY: qa_reload_lab
