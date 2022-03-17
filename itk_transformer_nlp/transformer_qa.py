@@ -40,6 +40,8 @@ def load_jsonl_dataset(dataset_path: str, cache_dir: Optional[str] = None) -> Da
             This can also be set by setting the `HF_DATASETS_CACHE` environment variable.
             By default, the `~/.cache/huggingface/datasets` will be used
     """
+    #  It is expected that the locally stored dataset is not divided to splits.
+    #  In this case, simply specify `"train"` as the value of the `split` argument of `load_dataset`
     return load_dataset("json", data_files=dataset_path, split="train", cache_dir=cache_dir)
 
 
@@ -135,8 +137,12 @@ def extract_answer(
     """
     batch_size, seq_length = input_ids.shape
     answer_start = torch.argmax(start_scores, dim=-1, keepdim=True)
+    #  Adding 1 below is necessary, as it seems that the model `bart-squadv2`
+    #  predicts the token before the last answer token
     answer_end = torch.argmax(end_scores, dim=-1, keepdim=True) + 1
     mask = torch.arange(seq_length).repeat(batch_size, 1)
+    # noinspection PyTypeChecker
+    #  The IDE may get the type of `answer_end` wrong (it is an integer tensor).
     mask = torch.where(
         torch.logical_and(answer_start < mask, mask <= answer_end),
         True, False)
@@ -209,6 +215,9 @@ def get_predictions(
         decoded_inputs = clean_decoded_batch(decode_bart_input(input_ids, tokenizer), cleaning_pattern)
         decoded_answers = clean_decoded_batch(decode_bart_input(answers, tokenizer), cleaning_pattern)
         for decoded_input, decoded_answer in zip(decoded_inputs, decoded_answers):
+            #  The length of `decoded_answer` might not be `1`. This can occur when the model predicts an answer
+            #  that contains tokens from both the question and the answer or only padding tokens.
+            #  Note that this behavior is normal, especially if truncation was used during tokenization.
             if len(decoded_answer) != 1:
                 decoded_answer = ("NA",)
             yield decoded_input + decoded_answer
