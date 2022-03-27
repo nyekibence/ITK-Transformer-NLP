@@ -408,7 +408,7 @@ def fine_tune_for_classification(
             label_key=label_key,
             metric_type=metric_type
         )
-        train_acc = train_metric.compute()["accuracy"]
+        train_acc = train_metric.compute()[metric_type]
         log_results(
             epoch=epoch,
             step=train_step,
@@ -467,7 +467,10 @@ def main() -> None:
     # initialized randomly
     hu_model = BertForSequenceClassification.from_pretrained(
         model_name, num_labels=2)
-    # Fine-tune the model
+    # Fine-tune the model.
+    # If everything is all right, both the training and the
+    # validation accuracy should be larger than 80% by the
+    # end of the training.
     hu_model = fine_tune_for_classification(
         model=hu_model,
         train_data_loader=train_data_loader,

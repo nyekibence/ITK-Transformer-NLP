@@ -84,5 +84,10 @@ A [huBERT](https://huggingface.co/SZTAKI-HLT/hubert-base-cc)
 finomhangolása a [HuCoLA](https://huggingface.co/datasets/NYTK/HuCOLA)
 dataseten. Javasolt, hogy a futtatás GPU-n történjen.
 
+Szkript: `itk_transformer_nlp/encoder_cola.py`
+
+Notebook: `materials/lesson2/Lab2.ipynb`.
+A notebookot ajánlott `Google Colab`-ban futtatni.
+
 Make parancsok:
  * `cola_fine_tune`: Futtatja a teszteket és elindítja a finomhangolást. A finomhangolt modellt az `outputs` könyvtárba menti.
