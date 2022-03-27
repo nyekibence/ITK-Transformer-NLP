@@ -78,3 +78,11 @@ Make parancsok:
 * `qa_on_squad`: Futtatja a teszteket és kiírja a letöltött SQuAD adatpontokon kiszámolt predikciókat. Ezzel lehet ellenőrizni, helyesek-e a gyakorlat megoldásai.
 * `qa_solutions:` Beírja a megoldásokat a `itk_transformer_nlp/transformer_qa.py` fájlba.
 * `qa_reload_lab`: Visszaállítja az eredeti kiegészítendő kódot az `itk_transformer_nlp/transformer_qa.py` fájlban.
+
+### CoLA
+A [huBERT](https://huggingface.co/SZTAKI-HLT/hubert-base-cc)
+finomhangolása a [HuCoLA](https://huggingface.co/datasets/NYTK/HuCOLA)
+dataseten. Javasolt, hogy a futtatás GPU-n történjen.
+
+Make parancsok:
+ * `cola_fine_tune`: Futtatja a teszteket és elindítja a finomhangolást. A finomhangolt modellt az `outputs` könyvtárba menti.
