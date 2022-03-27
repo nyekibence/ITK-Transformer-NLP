@@ -76,7 +76,7 @@ Szkript: `itk_transformer_nlp/transformer_qa.py`
 Make parancsok:
 * `data/squad_example.jsonl`: Letölt egy rövid mintát a [SQuAD](https://rajpurkar.github.io/SQuAD-explorer/) datasetből `jsonlines` formátumban.
 * `qa_on_squad`: Futtatja a teszteket és kiírja a letöltött SQuAD adatpontokon kiszámolt predikciókat. Ezzel lehet ellenőrizni, helyesek-e a gyakorlat megoldásai.
-* `qa_solutions:` Beírja a megoldásokat a `itk_transformer_nlp/transformer_qa.py` fájlba.
+* `qa_solutions:` Beírja a megoldásokat az `itk_transformer_nlp/transformer_qa.py` fájlba.
 * `qa_reload_lab`: Visszaállítja az eredeti kiegészítendő kódot az `itk_transformer_nlp/transformer_qa.py` fájlban.
 
 ### CoLA
@@ -91,3 +91,4 @@ A notebookot ajánlott `Google Colab`-ban futtatni.
 
 Make parancsok:
  * `cola_fine_tune`: Futtatja a teszteket és elindítja a finomhangolást. A finomhangolt modellt az `outputs` könyvtárba menti.
+ * `cola_solutions`: Beírja a megoldásokat az `itk_transformer_nlp/encoder_cola.py` fájlba.

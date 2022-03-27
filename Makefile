@@ -31,3 +31,8 @@ cola_fine_tune:
 	@python3 $(TEST_DIR)/test_encoder_cola.py; \
 	if [ $$? -eq 0 ]; then python3 $(SOURCE_DIR)/encoder_cola.py --model-save-path $(OUT_DIR)/hubert_cola; fi
 .PHONY: cola_fine_tune
+
+cola_solutions:
+	@if [ -d .git ]; then git restore --source 8006e776 $(SOURCE_DIR)/encoder_cola.py; echo "OK"; \
+	else echo "ERROR: You need version control to perform this action."; fi
+.PHONY: cola_solutions

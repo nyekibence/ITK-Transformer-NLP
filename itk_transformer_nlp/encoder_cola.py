@@ -377,14 +377,10 @@ def fine_tune_for_classification(
             lr_scheduler.step()
             optimizer.zero_grad()
             if train_step % logging_freq == 0:
-                val_loss, val_acc = do_evaluation(
-                    model=model,
-                    metric=val_metric,
-                    device=device,
-                    data_loader=val_data_loader,
-                    label_key=label_key,
-                    metric_type=metric_type
-                )
+                # Evaluate the model on the validation data.
+                # Use the `do_evaluation function` that we already
+                # implemented.
+                val_loss, val_acc = None
                 train_acc = train_metric.compute()[metric_type]
                 log_results(
                     epoch=epoch,
@@ -400,14 +396,10 @@ def fine_tune_for_classification(
 
     # Get the final logs after the training was completed
     if train_step % logging_freq != 0:
-        val_loss, val_acc = do_evaluation(
-            model=model,
-            metric=val_metric,
-            device=device,
-            data_loader=val_data_loader,
-            label_key=label_key,
-            metric_type=metric_type
-        )
+        # Evaluate the final model on the validation data.
+        # Use the `do_evaluation function` that we already
+        # implemented.
+        val_loss, val_acc = None
         train_acc = train_metric.compute()[metric_type]
         log_results(
             epoch=epoch,
@@ -464,9 +456,12 @@ def main() -> None:
     ) for dataset in (train_dataset, val_dataset))
 
     # Load the pre-trained model. The classifier head weights will be
-    # initialized randomly
-    hu_model = BertForSequenceClassification.from_pretrained(
-        model_name, num_labels=2)
+    # initialized randomly.
+    # Use a method of `BertForSequenceClassification` to load the model
+    # and set the number of classes to 2.
+    # Feel free to refer to
+    # https://huggingface.co/docs/transformers/main/en/main_classes/model
+    hu_model = None
     # Fine-tune the model.
     # If everything is all right, both the training and the
     # validation accuracy should be larger than 80% by the
