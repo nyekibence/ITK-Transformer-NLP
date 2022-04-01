@@ -32,6 +32,7 @@ from datasets import (
 from transformers import (
     BertTokenizer,
     PreTrainedTokenizer,
+    PreTrainedModel,
     BertForSequenceClassification,
     BatchEncoding,
     get_scheduler
@@ -84,10 +85,8 @@ def check_float_interval(
     return number
 
 
-def get_hucola_training_args() -> Namespace:
-    """Get command line arguments"""
-    parser = ArgumentParser(
-        description="Get command line arguments for fine-tuning huBERT on HuCoLA")
+def get_general_training_args(parser: ArgumentParser) -> ArgumentParser:
+    """Add general training arguments to an `ArgumentParser`"""
     parser.add_argument("--batch-size", dest="batch_size", type=check_positive_int,
                         default=8, help="Training batch size. Defaults to `8`.")
     parser.add_argument("--max-seq-length", dest="max_seq_length", type=check_positive_int,
@@ -107,6 +106,14 @@ def get_hucola_training_args() -> Namespace:
     parser.add_argument("--model-save-path", dest="model_save_path", type=check_model_save_dir,
                         help="Optional. Path to a directory where the model will be saved. "
                              "If not specified, the fine-tuned model will not be saved!")
+    return parser
+
+
+def get_hucola_training_args() -> Namespace:
+    """Get command line arguments"""
+    parser = ArgumentParser(
+        description="Get command line arguments for fine-tuning huBERT on HuCoLA")
+    get_general_training_args(parser)
     parser.add_argument("--hucola-sent-col", dest="hucola_sent_col", default="Sent",
                         help="Sentence column name in the `HuCoLA` dataset. Override the "
                              "default value only if you made sure that the column name "
@@ -203,7 +210,7 @@ def tokenize_single_sent_dataset(
 # classification. As a result, the classifier head outputs two floating point
 # numbers (one for each class) per input sequence instead of one.
 def _get_loss_log_accuracy(
-        model: BertForSequenceClassification,
+        model: PreTrainedModel,
         metric: Metric,
         device: torch.device,
         batch: Dict[str, torch.Tensor],
@@ -213,7 +220,7 @@ def _get_loss_log_accuracy(
     after a training or validation step
 
     Args:
-        model: A BERT model
+        model: The model to be trained or evaluated.
         metric: A metric object which logs predictions but does not calculate
             the metric (e.g. accuracy) until explicitly requested to.
         device: The same device where the model was put
@@ -261,7 +268,7 @@ def log_results(
 # noinspection PyUnboundLocalVariable
 @torch.inference_mode()
 def do_evaluation(
-        model: BertForSequenceClassification,
+        model: PreTrainedModel,
         metric: Metric,
         device: torch.device,
         data_loader: DataLoader,
@@ -271,7 +278,7 @@ def do_evaluation(
     """Do a validation epoch
 
     Args:
-        model: A BERT model
+        model: The model to be trained or evaluated.
         metric: A metric object which logs predictions but does not calculate
             the metric (e.g. accuracy) until explicitly requested to.
         device: The device to use, the same device where the model was put.
@@ -302,8 +309,8 @@ def do_evaluation(
 # So we can suppress warnings related to referencing possibly unassigned variables.
 # This is only relevant if you use the PyCharm IDE.
 # noinspection PyUnboundLocalVariable
-def fine_tune_for_classification(
-        model: BertForSequenceClassification,
+def fine_tune_transformer(
+        model: PreTrainedModel,
         train_data_loader: DataLoader,
         val_data_loader: DataLoader,
         num_epochs: int,
@@ -313,32 +320,32 @@ def fine_tune_for_classification(
         num_warmup_steps: int = 200,
         logging_freq: int = 100,
         metric_type: str = "accuracy"
-) -> BertForSequenceClassification:
-    """Fine-tune a model
+) -> PreTrainedModel:
+    """Fine-tune a model.
 
-     Args:
-         model: A BERT model
-         train_data_loader: A training dataset wrapped by a `DataLoader`.
+    Args:
+        model: The model to be trained or evaluated.
+        train_data_loader: A training dataset wrapped by a `DataLoader`.
              Batches will be expected to be `dict` instances that contain the
              model inputs.
-         val_data_loader: A validation dataset wrapped by a `DataLoader`.
+        val_data_loader: A validation dataset wrapped by a `DataLoader`.
              Batches will be expected to be `dict` instances that contain the
              model inputs.
-         num_epochs: Number of training epochs. Defaults to `2`.
-         learning_rate: Learning rate argument passed to an `AdamW` optimizer.
+        num_epochs: Number of training epochs. Defaults to `2`.
+        learning_rate: Learning rate argument passed to an `AdamW` optimizer.
              Defaults to `1e-6`.
-         weight_decay: Weight decay argument passed to an `AdamW` optimizer.
+        weight_decay: Weight decay argument passed to an `AdamW` optimizer.
              Defaults to `1e-6`.
-         scheduler_type: `name` parameter of the `transformers.get_scheduler`
+        scheduler_type: `name` parameter of the `transformers.get_scheduler`
              function. Defaults to `'linear'`.
-         num_warmup_steps: Number of learning rate warmup steps.
-         logging_freq: How often to log expressed in term of training steps.
+        num_warmup_steps: Number of learning rate warmup steps.
+        logging_freq: How often to log expressed in term of training steps.
              Counting starts over after each epoch end.
-         metric_type: Metric type to calculate, Defaults to `'accuracy'`.
+        metric_type: Metric type to calculate, Defaults to `'accuracy'`.
 
-     Returns:
-         The fine-tuned model
-     """
+    Returns:
+        The fine-tuned model.
+    """
     num_training_steps = num_epochs * len(train_data_loader)
     if num_training_steps <= num_warmup_steps:
         raise ValueError(f"The number of training steps ({num_training_steps}) "
@@ -466,7 +473,7 @@ def main() -> None:
     # If everything is all right, both the training and the
     # validation accuracy should be larger than 80% by the
     # end of the training.
-    hu_model = fine_tune_for_classification(
+    hu_model = fine_tune_transformer(
         model=hu_model,
         train_data_loader=train_data_loader,
         val_data_loader=val_data_loader,

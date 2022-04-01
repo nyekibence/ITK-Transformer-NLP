@@ -36,3 +36,8 @@ cola_solutions:
 	@if [ -d .git ]; then git restore --source 8006e776 $(SOURCE_DIR)/encoder_cola.py; echo "OK"; \
 	else echo "ERROR: You need version control to perform this action."; fi
 .PHONY: cola_solutions
+
+WEBIS = $(DATA_DIR)/webis.jsonl
+$(WEBIS):
+	@if ! [ -d $(DATA_DIR) ]; then mkdir $(DATA_DIR); fi
+	wget "https://zenodo.org/record/1168855/files/tldr-challenge-dataset.zip?download=1"

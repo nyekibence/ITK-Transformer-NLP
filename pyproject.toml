@@ -13,6 +13,7 @@ torch = "^1.10.2"
 transformers = "^4.17.0"
 datasets = "^1.18.4"
 sklearn = "^0.0"
+jsonlines = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
